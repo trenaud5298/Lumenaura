@@ -1,0 +1,24 @@
+#This Is The CMake File For The Lumenaura-Test Executable File. This CMake File Is Intended To Only
+#Be Used In The General Lumenaura Project And Is Intended To Provide A Way To Test The Lumenaura-Core
+#Library
+file(GLOB_RECURSE LUMENAURA_TEST_HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE LUMENAURA_TEST_SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+message(STATUS "Cmake Current Source Director For Lumenaur-Test: ${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_executable(Lumenaura_Test)
+
+target_link_libraries(Lumenaura_Test
+    PRIVATE Lumenaura_Core
+)
+
+target_include_directories(Lumenaura_Test
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+
+target_sources(Lumenaura_Test
+    PRIVATE ${LUMENAURA_TEST_SRC_FILES}
+)
+
+source_group("Header Files" FILES ${LUMENAURA_TEST_HEADER_FILES})
+source_group("Source Files" FILES ${LUMENAURA_TEST_SRC_FILES})
+
