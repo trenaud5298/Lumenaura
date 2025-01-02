@@ -1,0 +1,39 @@
+How To Simply Push Changes To Development Branch Without Creating A New Version
+
+git status (If you wish to see what changes have been made)
+git add . (to add any new files)
+git commit -m "Update - Working On A New Feature" (Creates a local commit to record changes)
+git push origin Development
+
+
+
+
+How To Create A New Version
+
+First follow steps above to push changes to Development Branch
+Then Do The Following To Create A Tag And Push It To GitHub
+
+git tag -a 2025.0.1 -m "Initial setup and version 2025.0.1"  (Creates a version tag for 2025.0.1)
+git push origin 2025.0.1  (Pushes the tag to the remote repository)
+
+
+
+
+
+Extra Info
+
+When doing:
+    git push -u origin Development
+
+the -u simply sets the default push/pull to the specified location (origin is the repository and Development is the branch)  (origin was added with: git remote add origin https://github.com/trenaud5298/Lumenaura.git)
+so that next time doing git push or git pull will simply infer the rest according to what we put after the -u
+
+To clone the Development branch do:
+git clone -b Development https://github.com/trenaud5298/Lumenaura.git
+
+To switch to a different branch do(This is needed if you decide to pull any changes from the branch and update your files):
+git checkout -b Development
+
+To Get Latest Updates From GitHub:
+git checkout -b Development (Make Sure You Have The Proper Branch Selected)
+git pull origin Development

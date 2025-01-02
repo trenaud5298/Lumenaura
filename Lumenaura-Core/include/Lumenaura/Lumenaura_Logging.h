@@ -1,0 +1,4 @@
+#ifndef LUMENAURA_LOGGING_H
+#define LUMENAURA_LOGGING_H
+
+#endif

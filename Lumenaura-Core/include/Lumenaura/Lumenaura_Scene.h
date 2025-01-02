@@ -1,0 +1,4 @@
+#ifndef LUMENAURA_SCENE_H
+#define LUMENAURA_SCENE_H
+
+#endif

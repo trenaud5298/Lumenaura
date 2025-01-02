@@ -1,0 +1,4 @@
+#ifndef LUMENAURA_HOSTMEMORY_H
+#define LUMENAURA_HOSTMEMORY_H
+
+#endif
