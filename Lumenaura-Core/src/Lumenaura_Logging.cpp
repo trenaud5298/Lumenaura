@@ -9,31 +9,6 @@
 
 namespace Lumenaura::Logging {
 
-    // Initializes the logging system.
-    bool initLogging(LoggingSettings loggingSettings) {
-        if(Lumenaura::HostMemory::loggingInitialized) {
-            log(LOG_TYPE_WARNING, "Unable To Re-Initialize Logging Sub-Module Before Calling shutdownLogging() Method");
-            return false;
-        }
-
-        Lumenaura::HostMemory::log.reserve(64);
-        Lumenaura::HostMemory::loggingSettings = loggingSettings;
-        Lumenaura::HostMemory::loggingInitialized = true;
-        log(LOG_TYPE_INFO, "Logging Sub-Module Initialized");
-        return true;
-    }
-
-    // Shuts down the logging system.
-    bool shutdownLogging() {
-        if(!Lumenaura::HostMemory::loggingInitialized) {
-            return false;
-        }
-
-        Lumenaura::HostMemory::log.clear();
-        Lumenaura::HostMemory::loggingInitialized = false;
-        return true;
-    }
-
     //Calls Next log() Method With C String
     void log(unsigned char logType, const std::string& logMessage) {
         log(logType, logMessage.c_str());
@@ -44,22 +19,23 @@ namespace Lumenaura::Logging {
         //This Check Also Ensures That Logging Has Been Initialized
         //Since Otherwise Minimum Log Level Is 0xFF Preventing ALl Log
         //Messages From Being Recorded
-        if(logType < Lumenaura::HostMemory::loggingSettings.m_minimumLogLevel) {
+        if(logType < Memory::loggingSettings.m_minimumLogLevel) {
             return;
         }
-        Lumenaura::HostMemory::log.emplace_back(logType, logMessage);
+        Memory::log.emplace_back(logType, logMessage);
     }
 
     // Checks whether logging is enabled.
     bool isLoggingEnabled() {
-        return Lumenaura::HostMemory::loggingInitialized;
+        // return Memory::loggingInitialized;
+        return true;
     }
 
     // Gets the first log of a specific type.
     const char* getFirstLogOfType(unsigned char logType) {
-        for(size_t i = 0; i < Lumenaura::HostMemory::log.size(); ++i) {
-            if(Lumenaura::HostMemory::log[i].m_logType & logType) {
-                return Lumenaura::HostMemory::log[i].m_logMessage;
+        for(size_t i = 0; i < Memory::log.size(); ++i) {
+            if(Memory::log[i].m_logType & logType) {
+                return Memory::log[i].m_logMessage;
             }
         }
         return nullptr; // No log found
@@ -67,9 +43,9 @@ namespace Lumenaura::Logging {
 
     // Gets the last log of a specific type.
     const char* getLastLogOfType(unsigned char logType) {
-        for(size_t i = Lumenaura::HostMemory::log.size() - 1; i >= 0; --i) {
-            if(Lumenaura::HostMemory::log[i].m_logType & logType) {
-                return Lumenaura::HostMemory::log[i].m_logMessage;
+        for(size_t i = Memory::log.size() - 1; i >= 0; --i) {
+            if(Memory::log[i].m_logType & logType) {
+                return Memory::log[i].m_logMessage;
             }
         }
         return nullptr; // No log found
@@ -78,9 +54,9 @@ namespace Lumenaura::Logging {
     // Gets all logs of a specific type.
     std::vector<const char*> getAllLogsOfType(unsigned char logType) {
         std::vector<const char*> results;
-        for(size_t i = 0; i < Lumenaura::HostMemory::log.size(); ++i) {
-            if(Lumenaura::HostMemory::log[i].m_logType & logType) {
-                results.push_back(Lumenaura::HostMemory::log[i].m_logMessage);
+        for(size_t i = 0; i < Memory::log.size(); ++i) {
+            if(Memory::log[i].m_logType & logType) {
+                results.push_back(Memory::log[i].m_logMessage);
             }
         }
         return results; 
@@ -92,12 +68,31 @@ namespace Lumenaura::Logging {
 
     void printLogOfType(unsigned char logType, std::ostream& out) {
         out<<"---Start Of Lumenaura Log---\n";
-        for(size_t i = 0; i < Lumenaura::HostMemory::log.size(); ++i) {
-            if(Lumenaura::HostMemory::log[i].m_logType & logType) {
-                out<<Lumenaura::HostMemory::log[i].m_logMessage<<"\n";
+        for(size_t i = 0; i < Memory::log.size(); ++i) {
+            if(Memory::log[i].m_logType & logType) {
+                out<<Memory::log[i].m_logMessage<<"\n";
             }
         }
         out<<"----End Of Lumenaura Log----\n";
+    }
+
+    bool saveLogToFile(const std::filesystem::path& filePath) {
+        std::ofstream fileOutput;
+        fileOutput.open(filePath, std::ios::out);
+
+        if (!fileOutput.is_open()) {
+            log(LOG_TYPE_ERROR, "Failed To Save Log At Filepath: " + filePath.string());
+            return false;
+        }
+
+        fileOutput<<"---Start Of Lumenaura Log---\n";
+        for(size_t i = 0; i < Memory::log.size(); ++i) {
+            fileOutput<<Memory::log[i].m_logMessage<<"\n";
+        }
+        fileOutput<<"----End Of Lumenaura Log----\n";
+
+        fileOutput.close();
+        return true;
     }
 
 }
@@ -105,36 +100,36 @@ namespace Lumenaura::Logging {
 
 namespace Lumenaura::Logging::Settings {
 
-    void setLoggingSettings(LoggingSettings loggingSettings){ 
-        Lumenaura::HostMemory::loggingSettings = loggingSettings;
+    void setConfig(ConfigStruct loggingSettings){ 
+        Memory::loggingSettings = loggingSettings;
     }
 
-    LoggingSettings getLoggingSettings(){ 
-        return Lumenaura::HostMemory::loggingSettings;
+    ConfigStruct getConfig(){ 
+        return Memory::loggingSettings;
     }
 
     void setMinimumLogLevel(unsigned char logType){ 
-        Lumenaura::HostMemory::loggingSettings.m_minimumLogLevel = logType;    
+        Memory::loggingSettings.m_minimumLogLevel = logType;    
     }
 
     unsigned char getMinimumLogLevel(){ 
-        return Lumenaura::HostMemory::loggingSettings.m_minimumLogLevel;
+        return Memory::loggingSettings.m_minimumLogLevel;
     }
 
     void setSaveLogOnShutdown(bool saveLogOnShutdown){ 
-        Lumenaura::HostMemory::loggingSettings.m_saveLogOnShutdown = saveLogOnShutdown;
+        Memory::loggingSettings.m_saveLogOnShutdown = saveLogOnShutdown;
     }
 
     bool getSaveLogOnShutdown(){ 
-        return Lumenaura::HostMemory::loggingSettings.m_saveLogOnShutdown;
+        return Memory::loggingSettings.m_saveLogOnShutdown;
     }
 
     void setRecordTimeOnLogs(bool recordTimeOnLogs){ 
-        Lumenaura::HostMemory::loggingSettings.m_recordTimeOnLogs = recordTimeOnLogs;
+        Memory::loggingSettings.m_recordTimeOnLogs = recordTimeOnLogs;
     }
 
     bool getRecordTimeOnLogs(){ 
-        return Lumenaura::HostMemory::loggingSettings.m_recordTimeOnLogs;
+        return Memory::loggingSettings.m_recordTimeOnLogs;
     }
 
 }

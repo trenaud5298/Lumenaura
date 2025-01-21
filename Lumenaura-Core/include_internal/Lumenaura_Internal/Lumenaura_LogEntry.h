@@ -33,6 +33,7 @@ struct LogEntry {
     //Primary Constructors For Creating A Log Entry Object
     LogEntry();
     LogEntry(unsigned char logType, const char* rawLogMessage);
+    LogEntry(unsigned char logType, const char* rawLogMessage, long long logTime);
     
     //Destructor To Handle Proper Memory Cleanup Of LogEntry Objects
     ~LogEntry();
@@ -47,11 +48,12 @@ struct LogEntry {
 
     //Provides Static Methods To Convert The Raw Log Message Into A Formatted One Based On Settings
     static const char* formatLogMessageWithoutTime(unsigned char logType, const char* rawLogMessage);
-    static const char* formatLogMessageWithTime(unsigned char logType, const char* rawLogMessage); 
+    static const char* formatLogMessageWithTime(unsigned char logType, const char* rawLogMessage, long long logTime); 
 
     //Internal Values For LogEntry Object
     unsigned char m_logType;
     const char* m_logMessage;
+    
 };
 
 

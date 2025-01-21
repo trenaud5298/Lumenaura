@@ -13,7 +13,12 @@ LogEntry::LogEntry() {
 
 LogEntry::LogEntry(unsigned char logType, const char* rawLogMessage) {
     m_logType = logType;
-    m_logMessage = (Lumenaura::HostMemory::loggingSettings.m_recordTimeOnLogs) ? formatLogMessageWithTime(logType, rawLogMessage) : formatLogMessageWithoutTime(logType, rawLogMessage);
+    m_logMessage = (Lumenaura::Logging::Memory::loggingSettings.m_recordTimeOnLogs) ? formatLogMessageWithTime(logType, rawLogMessage, Lumenaura::Timer::timeElapsedSinceProgramStart<std::chrono::milliseconds>()) : formatLogMessageWithoutTime(logType, rawLogMessage);
+}
+
+LogEntry::LogEntry(unsigned char logType, const char* rawLogMessage, long long logTime) {
+    m_logType = logType;
+    m_logMessage = (Lumenaura::Logging::Memory::loggingSettings.m_recordTimeOnLogs) ? formatLogMessageWithTime(logType, rawLogMessage, logTime) : formatLogMessageWithoutTime(logType, rawLogMessage);
 }
 
 LogEntry::~LogEntry() {
@@ -121,7 +126,7 @@ const char* LogEntry::formatLogMessageWithoutTime(unsigned char logType, const c
     return logMessage;
 }
 
-const char* LogEntry::formatLogMessageWithTime(unsigned char logType, const char* rawLogMessage) {
+const char* LogEntry::formatLogMessageWithTime(unsigned char logType, const char* rawLogMessage, long long logTime) {
     //Calculate Message Size
     int messageSize = 15;
     if(logType & LOG_TYPE_FATAL  ) {messageSize += 7;}
@@ -136,8 +141,7 @@ const char* LogEntry::formatLogMessageWithTime(unsigned char logType, const char
     char* currentPos = logMessage;
 
     //Calculate Time For Beginning Of Log Message
-    long long millisecondsSinceStartOfProgram = Lumenaura::Timer::timeElapsedSinceProgramStart<std::chrono::milliseconds>();
-    long long hoursSinceStartOfProgram = millisecondsSinceStartOfProgram / 3600000;
+    long long hoursSinceStartOfProgram = logTime / 3600000;
     
 
     //Write Time To Beginning Of Log Message
@@ -156,11 +160,11 @@ const char* LogEntry::formatLogMessageWithTime(unsigned char logType, const char
         currentPos[11] = '9';
         currentPos[12] = ' ';
     } else {
-        millisecondsSinceStartOfProgram %= 3600000;
-        long long minutesSinceStartOfProgram = millisecondsSinceStartOfProgram / 60000;
-        millisecondsSinceStartOfProgram %= 60000;
-        long long secondsSinceStartOfProgram = millisecondsSinceStartOfProgram / 1000;
-        millisecondsSinceStartOfProgram %= 1000;
+        logTime %= 3600000;
+        long long minutesSinceStartOfProgram = logTime / 60000;
+        logTime %= 60000;
+        long long secondsSinceStartOfProgram = logTime / 1000;
+        logTime %= 1000;
         currentPos[0] = '0' + (hoursSinceStartOfProgram / 10);
         currentPos[1] = '0' + (hoursSinceStartOfProgram % 10);
         currentPos[2] = ':';
@@ -170,9 +174,9 @@ const char* LogEntry::formatLogMessageWithTime(unsigned char logType, const char
         currentPos[6] = '0' + (secondsSinceStartOfProgram / 10);
         currentPos[7] = '0' + (secondsSinceStartOfProgram % 10);
         currentPos[8] = '.';
-        currentPos[9] = '0' + (millisecondsSinceStartOfProgram / 100);
-        currentPos[10] = '0' + ((millisecondsSinceStartOfProgram / 10) % 10);
-        currentPos[11] = '0' + (millisecondsSinceStartOfProgram % 10);     
+        currentPos[9] = '0' + (logTime / 100);
+        currentPos[10] = '0' + ((logTime / 10) % 10);
+        currentPos[11] = '0' + (logTime % 10);     
         currentPos[12] = ' ';  
     }
     currentPos += 13;

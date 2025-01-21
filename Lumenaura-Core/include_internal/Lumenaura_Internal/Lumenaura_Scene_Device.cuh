@@ -1,0 +1,6 @@
+#ifndef LUEMNAURA_SCENE_DEVICE_CUH
+#define LUMENAURA_SCENE_DEVICE_CUH
+
+
+
+#endif

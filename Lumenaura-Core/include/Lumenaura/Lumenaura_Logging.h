@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <filesystem>
 #include <Lumenaura/Lumenaura_Settings.h>
 
 //Defines Macros For Different Log Types
@@ -33,10 +34,6 @@
 //TODO: Impliment Log Saving, And Decide 'Who' Should Be In Charge Of This Feature; Logging, or ResourceManager
 namespace Lumenaura::Logging {
 
-    bool initLogging(LoggingSettings loggingSettings = LoggingSettings());
-
-    bool shutdownLogging();
-
     void log(unsigned char logType, const std::string& logMessage);
 
     void log(unsigned char logType, const char* logMessage);
@@ -53,13 +50,15 @@ namespace Lumenaura::Logging {
 
     void printLogOfType(unsigned char logType, std::ostream& out = std::cout);
 
+    bool saveLogToFile(const std::filesystem::path& filePath = "log.txt");
+
 };
 
 namespace Lumenaura::Logging::Settings {
 
-    void setLoggingSettings(LoggingSettings loggingSettings);
+    void setConfig(ConfigStruct loggingSettings);
 
-    LoggingSettings getLoggingSettings();
+    ConfigStruct getConfig();
 
     void setMinimumLogLevel(unsigned char logType = LOG_TYPE_DEBUG);
 

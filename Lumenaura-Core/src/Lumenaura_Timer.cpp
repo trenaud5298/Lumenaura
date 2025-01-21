@@ -8,35 +8,35 @@
 namespace Lumenaura::Timer {
 
     void startTimer() noexcept {
-        Lumenaura::HostMemory::timerStack.push(std::chrono::steady_clock::now());
+        Memory::timerStack.push(std::chrono::steady_clock::now());
     }
 
     template <typename DurationType>
     long long stopTimer() noexcept {
-        if(Lumenaura::HostMemory::timerStack.empty()) {
+        if(Memory::timerStack.empty()) {
             return 0;
         }
-        long long elapsedTime = (std::chrono::duration_cast<DurationType>(std::chrono::steady_clock::now() - Lumenaura::HostMemory::timerStack.top())).count();
-        Lumenaura::HostMemory::timerStack.pop();
+        long long elapsedTime = (std::chrono::duration_cast<DurationType>(std::chrono::steady_clock::now() - Memory::timerStack.top())).count();
+        Memory::timerStack.pop();
         return elapsedTime;
     }
 
     template <typename DurationType>
     long long peekTimer() noexcept {
-        if(Lumenaura::HostMemory::timerStack.empty()) {
+        if(Memory::timerStack.empty()) {
             return 0;
         }
-        return (std::chrono::duration_cast<DurationType>(std::chrono::steady_clock::now() - Lumenaura::HostMemory::timerStack.top())).count();
+        return (std::chrono::duration_cast<DurationType>(std::chrono::steady_clock::now() - Memory::timerStack.top())).count();
     }
 
     template <typename DurationType>
     long long timeElapsedSinceProgramStart() noexcept {
-        return (std::chrono::duration_cast<DurationType>(std::chrono::steady_clock::now() - Lumenaura::HostMemory::programStartTime)).count();
+        return (std::chrono::duration_cast<DurationType>(std::chrono::steady_clock::now() - Memory::programStartTime)).count();
     }
 
     void clearTimers() noexcept {
-        while(!Lumenaura::HostMemory::timerStack.empty()) {
-            Lumenaura::HostMemory::timerStack.pop();
+        while(!Memory::timerStack.empty()) {
+            Memory::timerStack.pop();
         }
     }
 
